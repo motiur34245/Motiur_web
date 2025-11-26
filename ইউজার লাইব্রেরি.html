@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মোটিউরের স্বপ্নের লাইব্রেরি</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Hind+Siliguri:wght@400;500;600;700&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{background:#0f0f0f;color:#fff;font-family:'Hind Siliguri',sans-serif;min-height:100vh;overflow-x:hidden;}
+        .container{max-width:420px;margin:0 auto;background:linear-gradient(135deg,#1e3c72,#2a5298);min-height:100vh;padding-bottom:120px;position:relative;}
+        header{padding:25px 20px 15px;text-align:center;background:rgba(0,0,0,0.3);position:relative;}
+        .hamburger{position:left;;left:0px;top:0px;font-size:30px;background:none;border:none;color:white;cursor:pointer;z-index:1001;}
+        .hamburger i{font-size:40px;}
+        .profile-fab, .comment-fab, .upload-fab{
+            position:fixed;right:20px;width:60px;height:60px;border-radius:50%;
+            display:flex;align-items:center;justify-content:center;font-size:28px;color:white;
+            box-shadow:0 8px 25px rgba(0,0,0,0.5);z-index:999;cursor:pointer;
+            border:4px solid rgba(255,255,255,0.3);transition:0.3s;
+        }
+        .profile-fab{bottom:20px;background:linear-gradient(135deg,#667eea,#764ba2);}
+        .comment-fab{bottom:90px;background:linear-gradient(135deg,#ff6b6b,#f5365d);}
+        .upload-fab{bottom:160px;background:linear-gradient(135deg,#11998e,#38ef7d);display:none;}
+        .profile-fab:hover,.comment-fab:hover,.upload-fab:hover{transform:scale(1.15);}
+        .header-logo{width:110px;height:110px;border-radius:50%;border:5px solid #fff;box-shadow:0 0 30px rgba(255,255,255,0.4);margin-bottom:15px;}
+        h1{font-size:26px;margin:10px 0;text-shadow:0 2px 10px rgba(0,0,0,0.5);}
+        .subtitle{font-size:16px;opacity:0.9;}
+        #auth-overlay,#profile-modal,#comments-modal,#upload-modal{
+            position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.95);backdrop-filter:blur(10px);
+            z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px;
+        }
+        #profile-modal,#comments-modal,#upload-modal{display:none;}
+        .auth-box,.profile-card{
+            background:rgba(255,255,255,0.1);padding:30px;border-radius:20px;width:100%;max-width:380px;
+            text-align:center;border:1px solid rgba(255,255,255,0.2);position:relative;
+        }
+        input,button,textarea{width:100%;padding:14px;margin:10px 0;border-radius:12px;border:none;font-size:16px;font-family:'Hind Siliguri',sans-serif;}
+        input,textarea{background:rgba(255,255,255,0.2);color:white;outline:none;}
+        input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.7);}
+        button{background:linear-gradient(to right,#667eea,#764ba2);color:white;font-weight:600;cursor:pointer;}
+        .toggle-text{margin-top:15px;color:#00d2ff;cursor:pointer;font-size:15px;}
+        .sidebar{position:fixed;top:0;left:-300px;width:300px;height:100vh;background:rgba(0,0,0,0.95);backdrop-filter:blur(15px);transition:0.4s;z-index:1000;padding:100px 20px 40px;overflow-y:auto;}
+        .sidebar.active{left:0;}
+        .close-btn{position:absolute;top:33px;right:100px;font-size:35px;background:none;border:none;color:white;cursor:pointer;}
+        .dev-photo{width:120px;height:120px;border-radius:50%;border:5px solid #00d2ff;margin:0 auto 20px;display:block;box-shadow:0 0 40px rgba(0,210,255,0.6);}
+        .dev-name{text-align:center;font-size:24px;font-weight:700;margin-bottom:8px;}
+        .dev-title{text-align:center;font-size:16px;color:#00d2ff;margin-bottom:35px;}
+        .dev-links a{display:flex;align-items:center;gap:15px;padding:16px 20px;background:rgba(255,255,255,0.1);margin:12px 0;border-radius:15px;color:white;text-decoration:none;font-size:17px;font-weight:500;transition:0.3s;border:1px solid rgba(255,255,255,0.1);}
+        .dev-links a:hover{background:rgba(0,210,255,0.2);transform:translateX(8px);border-color:#00d2ff;}
+        .dev-links i{font-size:24px;width:40px;text-align:center;}
+        .books{padding:20px;}
+        .book{background:rgba(255,255,255,0.12);border-radius:18px;margin:18px 0;overflow:hidden;box-shadow:0 8px 25px rgba(0,0,0,0.3);transition:0.3s;}
+        .book:hover{transform:translateY(-5px);}
+        .book-title{padding:20px;font-size:20px;font-weight:600;text-align:center;background:rgba(255,255,255,0.08);}
+        .book-author{padding:0 20px 15px;font-size:15px;opacity:0.85;text-align:center;color:#a0d8ff;}
+        .actions{padding:15px;text-align:center;}
+        .actions button{background:linear-gradient(135deg,#667eea,#764ba2);padding:12px 30px;border:none;border-radius:12px;color:white;font-weight:600;cursor:pointer;}
+        .footer{text-align:center;padding:30px 20px 100px;font-size:14px;opacity:0.7;}
+        .footer a{color:#fff;text-decoration:none;}
+        #searchBox{width:92%;padding:14px 16px;margin:15px auto;display:block;background:rgba(255,255,255,0.25);border:none;border-radius:16px;color:white;font-size:16px;outline:none;backdrop-filter:blur(10px);box-shadow:inset 0 2px 10px rgba(0,0,0,0.2);}
+        #searchBox::placeholder{color:rgba(255,255,255,0.75);}
+        #searchBox:focus{background:rgba(255,255,255,0.35);box-shadow:0 0 20px rgba(0,210,255,0.5);}
+        #comments-modal .profile-card{max-height:92vh;overflow-y:auto;padding:20px 25px;}
+        #comments-list{max-height:45vh;overflow-y:auto;margin:20px 0;padding:0 10px;}
+        .comment-item{background:rgba(255,255,255,0.12);padding:15px 18px;border-radius:16px;margin:12px 0;border-left:5px solid #00d2ff;box-shadow:0 4px 15px rgba(0,0,0,0.3);}
+        .comment-name{font-weight:600;color:#00d2ff;font-size:16px;margin-bottom:5px;}
+        .comment-text{font-size:15.5px;line-height:1.6;color:#f0f0f0;margin:8px 0;}
+        .comment-time{font-size:12px;opacity:0.7;color:#aaa;}
+        #comment-input{width:100%;min-height:100px;padding:18px;border-radius:16px;border:none;background:rgba(255,255,255,0.25);color:white;font-size:17px;font-family:'Hind Siliguri',sans-serif;resize:none;outline:none;backdrop-filter:blur(10px);margin:15px 0;box-shadow:inset 0 2px 10px rgba(0,0,0,0.2);}
+        #comment-input::placeholder{color:rgba(255,255,255,0.75);font-size:16px;}
+        .send-btn{background:linear-gradient(135deg,#667eea,#764ba2);padding:16px 32px;border-radius:16px;font-size:18px;font-weight:600;}
+        
+        /* নতুন: প্রোফাইলে ট্যাব */
+        .tab-buttons{display:flex;margin:20px 0 10px;border-bottom:2px solid rgba(255,255,255,0.2);}
+        .tab-btn{padding:12px 20px;background:none;border:none;color:rgba(255,255,255,0.7);font-size:16px;cursor:pointer;flex:1;}
+        .tab-btn.active{color:white;border-bottom:3px solid #00d2ff;font-weight:600;}
+        .tab-content{display:none;}
+        .tab-content.active{display:block;}
+        .upload-item{background:rgba(255,255,255,0.1);padding:15px;border-radius:12px;margin:10px 0;display:flex;justify-content:space-between;align-items:center;}
+        .status-approved{color:#38ef7d;}
+        .status-pending{color:#ffeb3b;}
+        .status-rejected{color:#ff6b6b;}
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <button class="hamburger" onclick="document.getElementById('sidebar').classList.toggle('active')">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <input type="text" id="searchBox" placeholder="বই বা লেখকের নাম লিখে সার্চ করুন..." style="display:none;">
+
+    <div class="profile-fab" id="profileFab" onclick="openProfile()" style="display:none;">
+        <i class="fas fa-user-circle"></i>
+    </div>
+
+    <div class="comment-fab" onclick="openComments()">
+        <i class="fas fa-comment-dots"></i>
+    </div>
+
+    <div class="upload-fab" onclick="document.getElementById('upload-modal').style.display='flex'">
+        <i class="fas fa-book-medical"></i>
+    </div>
+
+    <div id="sidebar" class="sidebar">
+        <button class="close-btn" onclick="document.getElementById('sidebar').classList.remove('active')">×</button>
+        <img src="https://i.ibb.co.com/5k5j7hP/motiur.jpg" class="dev-photo" alt="মোটিউর">
+        <div class="dev-name">মো: মতিউর রহমান</div>
+        <div class="dev-title">Writer & Web Developer</div>
+        <div class="dev-links">
+            <a href="https://www.facebook.com/profile.php?id=61569682102997" target="_blank"><i class="fab fa-facebook-f" style="color:#1877F2"></i> ফেসবুক প্রোফাইল</a>
+            <a href="https://wa.me/8801877870942" target="_blank"><i class="fab fa-whatsapp" style="color:#25D366"></i> হোয়াটসঅ্যাপ</a>
+            <a href="mailto:motiur@example.com"><i class="fas fa-envelope" style="color:#D44638"></i> ইমেইল</a>
+            <a href="tel:+8801933932475"><i class="fas fa-phone" style="color:#00d2ff"></i> কল করুন</a>
+            <a href="https://www.youtube.com/@Motiur24" target="_blank"><i class="fab fa-youtube" style="color:#FF0000"></i> ইউটিউব</a>
+        </div>
+    </div>
+
+    <!-- বই আপলোড মডাল -->
+    <div id="upload-modal">
+        <div class="profile-card">
+            <button style="position:absolute;top:15px;right:15px;font-size:32px;background:none;border:none;color:white;" 
+                    onclick="document.getElementById('upload-modal').style.display='none'">×</button>
+            <h2 style="margin-bottom:20px;">নতুন বই যোগ করুন</h2>
+            <input type="text" id="upload-title" placeholder="বইয়ের নাম">
+            <input type="text" id="upload-author" placeholder="লেখকের নাম">
+            <input type="url" id="upload-url" placeholder="পিডিএফ লিংক (Drive / Dropbox)">
+            <button style="margin-top:20px;background:linear-gradient(135deg,#11998e,#38ef7d);" onclick="submitBook()">জমা দিন (এডমিন রিভিউ করবে)</button>
+            <p style="margin-top:15px;font-size:14px;opacity:0.8;">এডমিন অনুমোদন করলে বইটি লাইব্রেরিতে দেখাবে</p>
+        </div>
+    </div>
+
+    <div id="auth-overlay">
+        <div class="auth-box">
+            <h2 id="auth-title">রেজিস্ট্রেশন করুন</h2>
+            <input type="text" id="name" placeholder="আপনার নাম">
+            <input type="text" id="mobile" placeholder="মোবাইল নাম্বার">
+            <input type="email" id="email" placeholder="ইমেইল">
+            <input type="password" id="password" placeholder="পাসওয়ার্ড">
+            <button id="auth-btn">রেজিস্টার করুন</button>
+            <div class="toggle-text" id="toggle-text">ইতিমধ্যে অ্যাকাউন্ট আছে? লগিন করুন</div>
+            <div class="toggle-text" style="display:none;" id="forget-pass">পাসওয়ার্ড ভুলে গেছেন?</div>
+        </div>
+    </div>
+
+    <!-- প্রোফাইল মডালে নতুন ট্যাব -->
+    <div id="profile-modal">
+        <div class="profile-card">
+            <button style="position:absolute;top:15px;right:15px;font-size:30px;background:none;border:none;color:white;" 
+                    onclick="document.getElementById('profile-modal').style.display='none'">×</button>
+            <img src="https://i.ibb.co.com/5k5j7hP/motiur.jpg" class="user-profile-img" alt="ইউজার">
+            <h3>প্রোফাইল</h3>
+
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="openTab(event, 'info')">তথ্য</button>
+                <button class="tab-btn" onclick="openTab(event, 'uploads')">আপনার আপলোড বই</button>
+            </div>
+
+            <!-- তথ্য ট্যাব -->
+            <div id="info" class="tab-content active">
+                <input type="text" id="profile-name" placeholder="নাম">
+                <input type="text" id="profile-mobile" placeholder="মোবাইল">
+                <input type="email" id="profile-email" disabled placeholder="ইমেইল">
+                <button onclick="updateProfile()">আপডেট করুন</button>
+                <button style="background:#ff6b6b;margin-top:10px;" onclick="logout()">লগ আউট</button>
+            </div>
+
+            <!-- আপলোড ট্যাব -->
+            <div id="uploads" class="tab-content">
+                <div style="text-align:center;padding:20px 0;font-size:15px;opacity:0.8;">
+                    আপনি মোট <strong id="totalUploads">0</strong> টি বই জমা দিয়েছেন
+                </div>
+                <div id="userUploadsList" style="max-height:50vh;overflow-y:auto;margin-top:10px;">
+                    <div style="text-align:center;opacity:0.7;padding:30px;">লোড হচ্ছে...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="comments-modal">
+        <div class="profile-card">
+            <button style="position:absolute;top:15px;right:15px;font-size:32px;background:none;border:none;color:white;" 
+                    onclick="document.getElementById('comments-modal').style.display='none'">×</button>
+            <h2 style="text-align:center;margin-bottom:20px;">সকলের মতামত <br> <br>সবাই কথা বলুন </h2>
+            <div id="comments-list"></div>
+            <textarea id="comment-input" placeholder="আপনার মতামত লিখুন..."></textarea>
+            <div style="text-align:center;margin-top:15px;">
+                <button class="send-btn" onclick="sendComment()">পাঠান</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        
+        <h1>📚📚আমাদের লাইব্রেরি📚📚 </h1>
+        <div class="subtitle">🔰অনলাইনে পড়ুন · যখন খুশি🔰</div>
+    </header>
+
+    <div class="books" id="books">
+        <div style="text-align:center;padding:60px;font-size:18px;opacity:0.8;">
+            বই লোড হচ্ছে...<br><br>প্রথমবার ইন্টারনেট লাগবে
+        </div>
+    </div>
+
+    <div class="footer">
+        Made with ❤️ by <a href="https://www.facebook.com/profile.php?id=61569682102997" target="_blank">💠মতিউর রহমান💠</a>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, getDocs, collection, addDoc, onSnapshot, query, orderBy, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAfLPqJc00AQHuJc5oJxuolhVSJiny58No",
+        authDomain: "shibir-95e48.firebaseapp.com",
+        projectId: "shibir-95e48",
+        storageBucket: "shibir-95e48.appspot.com",
+        messagingSenderId: "1080725773750",
+        appId: "1:1080725773750:web:cadd7ed602baa4975fb517"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const commentsRef = collection(db, "comments");
+    const pendingBooksRef = collection(db, "pending_books");
+
+    const authOverlay = document.getElementById('auth-overlay');
+    const profileFab = document.getElementById('profileFab');
+    const searchBox = document.getElementById('searchBox');
+    const list = document.getElementById('books');
+    const userUploadsList = document.getElementById('userUploadsList');
+    const totalUploads = document.getElementById('totalUploads');
+
+    let isLogin = false;
+    let allBooks = [];
+
+    // ট্যাব সুইচ
+    window.openTab = (evt, tabName) => {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        evt.currentTarget.classList.add('active');
+
+        if (tabName === 'uploads') loadUserUploads();
+    };
+
+    // ইউজারের আপলোড দেখানো
+    window.loadUserUploads = async () => {
+        const user = auth.currentUser;
+        if (!user) return;
+
+        userUploadsList.innerHTML = "<div style='text-align:center;opacity:0.7;padding:20px;'>লোড হচ্ছে...</div>";
+
+        const q1 = query(pendingBooksRef, where("submittedBy", "==", user.uid), orderBy("submittedAt", "desc"));
+        const q2 = query(collection(db, "books"), where("submittedBy", "==", user.uid), orderBy("submittedAt", "desc"));
+
+        let uploads = [];
+
+        const snap1 = await getDocs(q1);
+        snap1.forEach(doc => {
+            const d = doc.data();
+            uploads.push({ ...d, id: doc.id, status: "pending", collection: "pending" });
+        });
+
+        const snap2 = await getDocs(q2);
+        snap2.forEach(doc => {
+            const d = doc.data();
+            uploads.push({ ...d, id: doc.id, status: "approved", collection: "approved" });
+        });
+
+        totalUploads.textContent = uploads.length;
+
+        if (uploads.length === 0) {
+            userUploadsList.innerHTML = "<div style='text-align:center;opacity:0.7;padding:40px;'>আপনি এখনো কোনো বই জমা দেননি</div>";
+            return;
+        }
+
+        userUploadsList.innerHTML = "";
+        uploads.forEach(b => {
+            const date = b.submittedAt ? new Date(b.submittedAt.toDate()).toLocaleString('bn-BD') : "অজানা";
+            const statusText = b.status === "approved" ? "অনুমোদিত" : "অপেক্ষায়";
+            const statusIcon = b.status === "approved" ? "fa-check-circle" : "fa-clock";
+            const statusColor = b.status === "approved" ? "status-approved" : "status-pending";
+
+            const div = document.createElement('div');
+            div.className = 'upload-item';
+            div.innerHTML = `
+                <div>
+                    <strong>${b.title}</strong><br>
+                    <small>লেখক: ${b.author}</small><br>
+                    <small style="opacity:0.8;">${date}</small>
+                </div>
+                <div class="${statusColor}">
+                    <i class="fas ${statusIcon}"></i> ${statusText}
+                </div>
+            `;
+            userUploadsList.appendChild(div);
+        });
+    };
+
+    window.openProfile = async () => {
+        const user = auth.currentUser;
+        if(user){
+            const snap = await getDoc(doc(db, "users", user.uid));
+            if(snap.exists()){
+                const d = snap.data();
+                document.getElementById('profile-name').value = d.name || '';
+                document.getElementById('profile-mobile').value = d.mobile || '';
+                document.getElementById('profile-email').value = d.email || '';
+            }
+            document.getElementById('profile-modal').style.display = 'flex';
+            document.querySelector('.tab-btn').click(); // ডিফল্ট ট্যাব
+        }
+    };
+
+    window.submitBook = async () => {
+        const title = document.getElementById('upload-title').value.trim();
+        const author = document.getElementById('upload-author').value.trim();
+        const url = document.getElementById('upload-url').value.trim();
+
+        if (!title || !author || !url) return alert("সব তথ্য পূরণ করুন");
+
+        const user = auth.currentUser;
+        if (!user) return alert("লগইন করুন");
+
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        const userName = userSnap.exists() ? (userSnap.data().name || "অজানা") : "অজানা";
+
+        await addDoc(pendingBooksRef, {
+            title, author, url,
+            submittedBy: user.uid,
+            submittedByName: userName,
+            submittedAt: new Date(),
+            status: "pending"
+        });
+
+        alert("ধন্যবাদ! তোমার বইটি এডমিন রিভিউ করবে।");
+        document.getElementById('upload-modal').style.display = 'none';
+        document.getElementById('upload-title').value = '';
+        document.getElementById('upload-author').value = '';
+        document.getElementById('upload-url').value = '';
+    };
+
+    // বাকি সব কোড আগের মতোই...
+    // (অথেন্টিকেশন, কমেন্ট, বই লোড, সার্চ — সব আগের মতোই আছে)
+
+    document.getElementById('toggle-text').addEventListener('click', () => {
+        isLogin = !isLogin;
+        if(isLogin){
+            document.getElementById('auth-title').textContent = "লগিন করুন";
+            document.getElementById('auth-btn').textContent = "লগিন";
+            document.getElementById('toggle-text').textContent = "অ্যাকাউন্ট নেই? রেজিস্টার করুন";
+            document.getElementById('name').style.display = 'none';
+            document.getElementById('mobile').style.display = 'none';
+            document.getElementById('forget-pass').style.display = 'block';
+        } else {
+            document.getElementById('auth-title').textContent = "রেজিস্ট্রেশন করুন";
+            document.getElementById('auth-btn').textContent = "রেজিস্টার করুন";
+            document.getElementById('toggle-text').textContent = "ইতিমধ্যে অ্যাকাউন্ট আছে? লগিন করুন";
+            document.getElementById('name').style.display = 'block';
+            document.getElementById('mobile').style.display = 'block';
+            document.getElementById('forget-pass').style.display = 'none';
+        }
+    });
+
+    document.getElementById('forget-pass').addEventListener('click', () => {
+        const email = document.getElementById('email').value;
+        if(email) sendPasswordResetEmail(auth, email).then(()=>alert("রিসেট লিঙ্ক পাঠানো হয়েছে")).catch(()=>alert("সঠিক ইমেইল দিন"));
+        else alert("ইমেইল লিখুন");
+    });
+
+    document.getElementById('auth-btn').addEventListener('click', () => {
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        if(!email || !password) return alert("সব ফিল্ড পূরণ করুন");
+        if(isLogin){
+            signInWithEmailAndPassword(auth, email, password).catch(err => alert("ভুল ইমেইল/পাসওয়ার্ড"));
+        } else {
+            const name = document.getElementById('name').value.trim();
+            const mobile = document.getElementById('mobile').value.trim();
+            if(!name || !mobile) return alert("সব তথ্য দিন");
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(cred => setDoc(doc(db, "users", cred.user.uid), { name, mobile, email }))
+                .catch(err => alert(err.message));
+        }
+    });
+
+    window.updateProfile = async () => {
+        const user = auth.currentUser;
+        const name = document.getElementById('profile-name').value;
+        const mobile = document.getElementById('profile-mobile').value;
+        await setDoc(doc(db, "users", user.uid), { name, mobile }, { merge: true });
+        alert("প্রোফাইল আপডেট হয়েছে");
+    };
+
+    window.logout = () => signOut(auth);
+    window.openComments = () => {
+        document.getElementById('comments-modal').style.display = 'flex';
+        loadAllComments();
+    };
+
+    window.sendComment = async () => {
+        const input = document.getElementById('comment-input');
+        const text = input.value.trim();
+        if (!text) return alert("কিছু লিখুন");
+        const user = auth.currentUser;
+        if (!user) return alert("লগইন করুন");
+        const userSnap = await getDoc(doc(db, "users", user.uid));
+        const userName = userSnap.exists() ? (userSnap.data().name || "অজানা ইউজার") : "অজানা ইউজার";
+        await addDoc(commentsRef, { text, name: userName, uid: user.uid, timestamp: new Date() });
+        input.value = "";
+    };
+
+    function loadAllComments() {
+        const clist = document.getElementById('comments-list');
+        onSnapshot(query(commentsRef, orderBy("timestamp", "desc")), (snapshot) => {
+            clist.innerHTML = "";
+            if (snapshot.empty) { clist.innerHTML = "<p style='text-align:center;padding:50px;opacity:0.7;'>এখনো কোনো মতামত নেই। আপনি প্রথম হোন!</p>"; return; }
+            snapshot.forEach(doc => {
+                const c = doc.data();
+                const time = c.timestamp ? new Date(c.timestamp.toDate()).toLocaleString('bn-BD') : "";
+                const div = document.createElement('div');
+                div.className = 'comment-item';
+                div.innerHTML = `<div class="comment-name">${c.name}</div><div class="comment-text">${c.text}</div><div class="comment-time">${time}</div>`;
+                clist.appendChild(div);
+            });
+        });
+    }
+
+    function show(books) {
+        if (!books || books.length === 0) {
+            list.innerHTML = '<div style="text-align:center;padding:60px;color:#ff6b6b;">কোনো বই পাওয়া যায়নি।</div>';
+            return;
+        }
+        list.innerHTML = '';
+        books.forEach(b => {
+            const div = document.createElement('div');
+            div.className = 'book';
+            div.innerHTML = `
+                <div class="book-title">${b.title || 'নামহীন বই'}</div>
+                <div class="book-author">লেখক: ${b.author || 'অজানা'}</div>
+                <div class="actions">
+                    <button onclick="window.location.href='${b.url}'">বই পড়ুন</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    function loadBooks() {
+        localStorage.removeItem('motiur_final_books');
+        getDocs(collection(db, "books")).then(snap => {
+            const all = [];
+            snap.forEach(doc => {
+                const d = doc.data();
+                if (d.title && d.url) all.push(d);
+            });
+            allBooks = all;
+            if (all.length > 0) localStorage.setItem('motiur_final_books', JSON.stringify(all));
+            show(all);
+        }).catch(() => {
+            const saved = localStorage.getItem('motiur_final_books');
+            if (saved) { allBooks = JSON.parse(saved); show(allBooks); }
+        });
+    }
+
+    searchBox.addEventListener('keyup', () => {
+        const txt = searchBox.value.trim().toLowerCase();
+        if (txt === "") { show(allBooks); return; }
+        const filtered = allBooks.filter(b =>
+            (b.title && b.title.toLowerCase().includes(txt)) ||
+            (b.author && b.author.toLowerCase().includes(txt))
+        );
+        show(filtered);
+    });
+
+    onAuthStateChanged(auth, user => {
+        if(user){
+            authOverlay.style.display = 'none';
+            profileFab.style.display = 'flex';
+            document.querySelector('.comment-fab').style.display = 'flex';
+            document.querySelector('.upload-fab').style.display = 'flex';
+            searchBox.style.display = 'block';
+            loadBooks();
+        } else {
+            authOverlay.style.display = 'flex';
+            profileFab.style.display = 'none';
+            document.querySelector('.comment-fab').style.display = 'none';
+            document.querySelector('.upload-fab').style.display = 'none';
+            searchBox.style.display = 'none';
+        }
+    });
+</script>
+</body>
+</html>
